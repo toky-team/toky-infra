@@ -7,7 +7,7 @@
   # front = 루트 도메인
   @front host toky.devkor.club
   handle @front {
-    root * /srv/front/current
+    root * /srv/front/current/client
     encode gzip zstd
     try_files {path} /index.html
     file_server
