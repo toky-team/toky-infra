@@ -1,0 +1,22 @@
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'node-exporter-app'
+    file_sd_configs:
+      - files:
+          - /etc/prometheus/targets/node-exporter.json
+    scheme: http
+    metrics_path: /metrics
+
+  - job_name: 'nest-app'
+    file_sd_configs:
+      - files:
+          - /etc/prometheus/targets/nest-app.json
+    scheme: http
+    metrics_path: /metrics
+    basic_auth:
+      username: metrics
+      password_file: /etc/prometheus/secrets/nest-app-basic-password

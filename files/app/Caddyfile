@@ -1,0 +1,11 @@
+:80 {
+  @metrics path /metrics
+  route @metrics {
+    basic_auth {
+      {$METRICS_USER} {$METRICS_PASS_BCRYPT}
+    }
+    reverse_proxy app:3000
+  }
+
+  reverse_proxy app:3000
+}

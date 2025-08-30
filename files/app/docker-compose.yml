@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  app:
+    image: ghcr.io/toky-team/nest:main
+    restart: unless-stopped
+    env_file:
+      - /home/ec2-user/app/app.env
+    expose: ["3000"]
+    networks: [appnet]
+    pull_policy: always
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:'+ (process.env.PORT||3000) +'/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    logging:
+      driver: json-file
+      options: { max-size: "20m", max-file: "3" }
+
+  caddy:
+    image: caddy:2.8
+    restart: unless-stopped
+    env_file:
+      - /home/ec2-user/app/caddy.env
+    ports: ["80:80"]
+    volumes:
+      - /home/ec2-user/app/Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on: [app]
+    networks: [appnet]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+  node_exporter:
+    image: prom/node-exporter:v1.8.2
+    restart: unless-stopped
+    pid: host
+    network_mode: host
+    command: ["--web.listen-address=:9100"]
+
+networks:
+  appnet: {}
