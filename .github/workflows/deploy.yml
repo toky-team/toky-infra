@@ -1,0 +1,36 @@
+name: Deploy on Image Publish
+
+on:
+  repository_dispatch:
+    types: [image_published]
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      SRC:   ${{ github.event.client_payload.source_repo }}
+    steps:
+      - name: Print payload
+        run: |
+          echo "source=$SRC"
+
+      - name: Rolling deploy via SSH
+        if: ${{ env.SRC == 'toky-team/toky-back' }}
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.OPS_SSH_HOST }}
+          username: ${{ secrets.OPS_SSH_USER }}
+          key: ${{ secrets.OPS_SSH_KEY }}
+          timeout: 600s
+          script: |
+            set -euo pipefail
+
+            # 표준 롤링 배포 파이프라인 실행
+            /opt/ops/00_run_all.sh
