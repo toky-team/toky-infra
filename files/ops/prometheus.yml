@@ -10,6 +10,16 @@ scrape_configs:
           - /etc/prometheus/targets/node-exporter.json
     scheme: http
     metrics_path: /metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        regex: '([^:]+):?.*'
+        target_label: host
+        replacement: '$1'
+      - action: labeldrop
+        regex: '^(role|svc|type)$'
+    metric_relabel_configs:
+      - action: labeldrop
+        regex: '^(role|svc|type)$'
 
   - job_name: 'nest-app'
     file_sd_configs:
@@ -20,3 +30,13 @@ scrape_configs:
     basic_auth:
       username: metrics
       password_file: /etc/prometheus/secrets/nest-app-basic-password
+    relabel_configs:
+      - source_labels: [__address__]
+        regex: '([^:]+):?.*'
+        target_label: host
+        replacement: '$1'
+      - action: labeldrop
+        regex: '^(role|svc|type)$'
+    metric_relabel_configs:
+      - action: labeldrop
+        regex: '^(role|svc|type)$'
