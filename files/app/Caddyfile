@@ -1,4 +1,7 @@
 :80 {
+  @health path /healthz
+  respond @health 200
+
   @metrics path /metrics
   route @metrics {
     basic_auth {

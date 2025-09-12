@@ -33,7 +33,7 @@ services:
     depends_on: [app]
     networks: [appnet]
     healthcheck:
-      test: ["CMD", "wget", "--no-proxy", "-qO-", "http://127.0.0.1/health"]
+      test: ["CMD-SHELL", "wget -qO- -Y off http://127.0.0.1/healthz >/dev/null 2>&1 || exit 1"]
       interval: 10s
       timeout: 3s
       retries: 10
